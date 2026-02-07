@@ -18,8 +18,8 @@
             text-align: center;
         }
 
-        #main-content { z-index: 5; }
-        h1 { color: #d63384; }
+        #main-content { z-index: 5; padding: 20px; }
+        h1 { color: #d63384; font-size: 1.8rem; }
 
         #yesBtn {
             background-color: #ff4d6d;
@@ -29,39 +29,47 @@
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            z-index: 100; /* Кнопка Да всегда выше текста */
-            transition: transform 0.1s ease;
+            z-index: 100;
+            transition: transform 0.2s ease;
         }
         
         #noBtn { 
             background-color: #adb5bd; 
             color: white; 
             padding: 15px 30px;
-            font-size: 1.2rem;
+            font-size: 1rem;
             border: none;
             border-radius: 50px;
             cursor: pointer;
             position: absolute;
-            z-index: 1000; /* Кнопка Нет ВСЕГДА выше кнопки Да */
+            z-index: 1000;
+            white-space: nowrap;
         }
 
+        /* Адаптивное фото для телефона */
         #surpriseImg {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover; /* Фото заполнит весь экран */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw; /* 90% ширины экрана */
+            max-width: 400px;
+            max-height: 80vh; /* Чтобы не вылетало по высоте */
+            object-fit: contain;
+            border-radius: 15px;
             z-index: 9999;
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
         }
 
-        #success { display: none; font-size: 2rem; color: #d63384; z-index: 10000; }
+        #success { display: none; font-size: 1.5rem; color: #d63384; z-index: 10000; padding: 20px; }
+        #success img { width: 80%; max-width: 250px; }
     </style>
 </head>
 <body>
 
     <div id="main-content">
-        <img src="https://media.tenor.com/IC9_XvB26q8AAAAi/peach-goma.gif" width="150">
+        <img src="https://media.tenor.com/IC9_XvB26q8AAAAi/peach-goma.gif" width="120">
         <h1 id="header">Будешь моей валентинкой? ❤️</h1>
         <button id="yesBtn">Да</button>
         <button id="noBtn">Нет</button>
@@ -71,7 +79,7 @@
 
     <div id="success">
         <h1>Ура! Я люблю тебя! ❤️</h1>
-        <img src="https://media.tenor.com/XU95I8Xhv8AAAAAi/tkthao219-bubududu.gif" width="300">
+        <img src="https://media.tenor.com/XU95I8Xhv8AAAAAi/tkthao219-bubududu.gif">
     </div>
 
     <script>
@@ -82,17 +90,36 @@
         let noCount = 0;
         let yesScale = 1;
 
+        // Список фраз для кнопки "Нет"
+        const phrases = [
+            "Нет",
+            "Ты уверена?",
+            "Подумай еще раз!",
+            "Другого шанса не будет!",
+            "Правда нет?",
+            "Может все-таки да?",
+            "Ты меня расстраиваешь...",
+            "Ну нажми уже ДА!"
+        ];
+
+        noBtn.innerText = phrases[0];
+
         noBtn.addEventListener('click', () => {
             noCount++;
 
-            // 1. Кнопка "Да" увеличивается быстрее
-            yesScale += 1.5; 
+            // 1. Увеличение кнопки Да (на 8-й раз станет огромной)
+            yesScale += 2.5; 
             yesBtn.style.transform = `scale(${yesScale})`;
 
-            // 2. Кнопка "Нет" убегает
+            // 2. Убегание кнопки Нет
             moveNoButton();
 
-            // 3. Сюрприз на весь экран на 4-м нажатии на 3 секунды
+            // 3. Смена текста на кнопке Нет
+            if (noCount < phrases.length) {
+                noBtn.innerText = phrases[noCount];
+            }
+
+            // 4. Сюрприз на 4-м нажатии (3 сек)
             if (noCount === 4) {
                 surpriseImg.style.display = 'block';
                 setTimeout(() => {
@@ -100,39 +127,37 @@
                 }, 3000);
             }
 
-            // 4. На 8-м нажатии "Да" заполняет весь экран
+            // 5. Финал на 8 клике
             if (noCount >= 8) {
+                noBtn.style.display = 'none'; // Кнопка Нет исчезает
                 yesBtn.style.position = 'fixed';
                 yesBtn.style.top = '0';
                 yesBtn.style.left = '0';
                 yesBtn.style.width = '100vw';
                 yesBtn.style.height = '100vh';
                 yesBtn.style.transform = 'scale(1)';
+                yesBtn.style.borderRadius = '0';
                 yesBtn.innerText = 'ДА!';
             }
         });
 
         function moveNoButton() {
             const padding = 20;
-            // Получаем границы кнопки "Да"
             const yesRect = yesBtn.getBoundingClientRect();
             
             let x, y;
             let isOnYes = true;
 
-            // Цикл подбирает координаты, пока "Нет" попадает на "Да"
             while (isOnYes) {
                 x = Math.random() * (window.innerWidth - noBtn.offsetWidth - padding);
                 y = Math.random() * (window.innerHeight - noBtn.offsetHeight - padding);
 
-                // Проверка: не пересекаются ли координаты с кнопкой Да
-                if (!(x > yesRect.left - 50 && x < yesRect.right + 50 && 
-                      y > yesRect.top - 50 && y < yesRect.bottom + 50)) {
+                // Проверка, чтобы кнопка "Нет" не попала под кнопку "Да"
+                if (!(x > yesRect.left - 40 && x < yesRect.right + 40 && 
+                      y > yesRect.top - 40 && y < yesRect.bottom + 40)) {
                     isOnYes = false;
                 }
-                
-                // Предохранитель для финала (когда "Да" на весь экран)
-                if (noCount >= 8) isOnYes = false; 
+                if (noCount >= 8) isOnYes = false;
             }
 
             noBtn.style.left = x + 'px';
