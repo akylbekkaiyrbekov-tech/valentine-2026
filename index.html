@@ -21,30 +21,10 @@
         #main-content { 
             z-index: 5; 
             padding: 20px; 
-            transition: opacity 0.5s ease;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            transition: opacity 0.5s ease; /* Для плавного исчезновения */
         }
 
-        /* Центрирование заголовка */
-        h1 { 
-            color: #d63384; 
-            font-size: 1.8rem; 
-            width: 100%;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .btn-container {
-            position: relative;
-            width: 100%;
-            height: 80px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        h1 { color: #d63384; font-size: 1.8rem; }
 
         #yesBtn {
             background-color: #ff4d6d;
@@ -67,7 +47,7 @@
             border-radius: 50px;
             cursor: pointer;
             position: absolute;
-            z-index: 1000;
+            z-index: 1000; /* Самый высокий приоритет */
             white-space: nowrap;
             touch-action: manipulation;
         }
@@ -77,33 +57,129 @@
             position: fixed;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            width: 90vw;
+            width: 95vw;
             max-width: 400px;
             height: auto;
-            max-height: 80vh;
+            max-height: 90vh;
             object-fit: contain;
             border-radius: 15px;
             z-index: 9999;
             box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
-        /* Центрирование финального блока */
-        #success { 
-            display: none; 
-            width: 100%;
-            text-align: center;
-            z-index: 10000; 
-        }
-        
-        #success h1 {
-            font-size: 1.8rem;
-            padding: 0 10px;
-        }
-
+        #success { display: none; font-size: 1.5rem; color: #d63384; z-index: 10000; }
         #success img { width: 80%; max-width: 250px; }
     </style>
 </head>
 <body>
 
     <div id="main-content">
-        <img src="https://media.tenor.com/IC9_XvB26q8AAAAi/peach-goma.
+        <img src="https://media.tenor.com/IC9_XvB26q8AAAAi/peach-goma.gif" width="120">
+        <h1 id="header">Будешь моей валентинкой? ❤️</h1>
+        <button id="yesBtn">Да</button>
+        <button id="noBtn">Нет</button>
+    </div>
+
+    <img id="surpriseImg" src="photo.png" alt="Сюрприз">
+
+    <div id="success">
+        <h1>Ура! Я люблю тебя! ❤️</h1>
+        <img src="https://media.tenor.com/XU95I8Xhv8AAAAAi/tkthao219-bubududu.gif">
+    </div>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const mainContent = document.getElementById('main-content');
+        const surpriseImg = document.getElementById('surpriseImg');
+        
+        let noCount = 0;
+        let yesScale = 1;
+
+        const phrases = [
+            "Нет", "Ты уверена?", "Подумай еще раз!", 
+            "Другого шанса не будет!", "Правда нет?", 
+            "Может все-таки да?", "Ты меня расстраиваешь...", "Ну нажми уже ДА!"
+        ];
+
+        noBtn.innerText = phrases[0];
+
+        noBtn.addEventListener('click', () => {
+            noCount++;
+
+            // 1. Да растет
+            yesScale += 2.2; 
+            yesBtn.style.transform = `scale(${yesScale})`;
+
+            // 2. Нет убегает (с проверкой границ)
+            moveNoButton();
+
+            // 3. Текст
+            if (noCount < phrases.length) {
+                noBtn.innerText = phrases[noCount];
+            }
+
+            // 4. Сюрприз: Всё исчезает, фото появляется
+            if (noCount === 4) {
+                mainContent.style.opacity = '0';
+                setTimeout(() => {
+                    surpriseImg.style.display = 'block';
+                }, 300);
+
+                setTimeout(() => {
+                    surpriseImg.style.display = 'none';
+                    mainContent.style.opacity = '1';
+                }, 3300);
+            }
+
+            // 5. Финал
+            if (noCount >= 8) {
+                noBtn.style.display = 'none';
+                yesBtn.style.position = 'fixed';
+                yesBtn.style.top = '0'; yesBtn.style.left = '0';
+                yesBtn.style.width = '100vw'; yesBtn.style.height = '100vh';
+                yesBtn.style.transform = 'scale(1)';
+                yesBtn.innerText = 'ДА!';
+            }
+        });
+
+        function moveNoButton() {
+            const padding = 30;
+            const btnWidth = noBtn.offsetWidth;
+            const btnHeight = noBtn.offsetHeight;
+            
+            // Безопасная зона: только внутри экрана
+            const maxX = window.innerWidth - btnWidth - padding;
+            const maxY = window.innerHeight - btnHeight - padding;
+
+            const yesRect = yesBtn.getBoundingClientRect();
+            
+            let x, y;
+            let onTarget = true;
+
+            // Ищем место, пока не найдем свободное от кнопки "Да"
+            let attempts = 0;
+            while (onTarget && attempts < 20) {
+                x = Math.max(padding, Math.random() * maxX);
+                y = Math.max(padding, Math.random() * maxY);
+
+                // Если это не накладывается на кнопку Да
+                if (!(x > yesRect.left - 60 && x < yesRect.right + 60 && 
+                      y > yesRect.top - 60 && y < yesRect.bottom + 60)) {
+                    onTarget = false;
+                }
+                attempts++;
+            }
+
+            noBtn.style.left = x + 'px';
+            noBtn.style.top = y + 'px';
+        }
+
+        yesBtn.addEventListener('click', () => {
+            mainContent.style.display = 'none';
+            document.getElementById('success').style.display = 'block';
+            document.body.style.backgroundColor = '#ffc8dd';
+        });
+    </script>
+</body>
+</html>
