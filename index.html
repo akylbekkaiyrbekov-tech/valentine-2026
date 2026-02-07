@@ -24,7 +24,13 @@
             transition: opacity 0.5s ease; /* Для плавного исчезновения */
         }
 
-        h1 { color: #d63384; font-size: 1.8rem; }
+       h1 { 
+    color: #d63384; 
+    font-size: 1.8rem; 
+    width: 100%; 
+    text-align: center; 
+    margin: 20px 0; 
+}
 
         #yesBtn {
             background-color: #ff4d6d;
@@ -52,19 +58,14 @@
             touch-action: manipulation;
         }
 
-        #surpriseImg {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 95vw;
-            max-width: 400px;
-            height: auto;
-            max-height: 90vh;
-            object-fit: contain;
-            border-radius: 15px;
-            z-index: 9999;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        #success { 
+    display: none; 
+    font-size: 1.5rem; 
+    color: #d63384; 
+    z-index: 10000; 
+    width: 100%; 
+    text-align: center; 
+}
         }
 
         #success { display: none; font-size: 1.5rem; color: #d63384; z-index: 10000; }
